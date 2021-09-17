@@ -12,6 +12,7 @@
 #include <stdint.h>
 
 #include "utils.h"
+#include "logging.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -71,14 +72,44 @@ int init()
 int main(int argc, char *argv[])
 {
 
-    if (argc < 2) {
-        fprintf(stderr, "Error: path to jpeg not provided\n");
-        return -1;
-    }
+    char *file = NULL;
+    char *path = NULL;
 
-    FILE *jpegFile= fopen(argv[1], "rb");
+
+    log_init(NULL);
+
+    if (argc < 2) {
+        logging_info("No path provided; Using lenna");
+        //Try to use lenna
+#if defined(__unix__)
+        char *home = getenv("HOME");
+        path = (char *) malloc(strlen(home) + sizeof("/Pictures/lenna.jpg") + 1);
+        if (path) {
+            sprintf(path, "%s%s", home, "/Pictures/lenna.jpg");
+        }
+#elif defined(__WIN32__)
+        char *home = getenv("USERPROFILE");
+        path = (char *) malloc(strlen(home) + sizeof("\\Pictures\\lenna.jpg") + 1);
+        if (path) {
+            sprintf(path, "%s%s", home, "\\Pictures\\lenna.jpg");
+        }
+#endif
+
+    } else {
+        logging_info("argv[1] used for path");
+        path = argv[1];
+    }
+    
+    FILE *jpegFile = fopen(path, "rb");
+
+
+    // don't forget to free path
+    if (path) { 
+        free(path);
+    }
     if (!jpegFile) {
         fprintf(stderr, "Error: Could not open file(%s)\n", strerror(errno));
+        return -1;
     }
 
     process_jpeg(jpegFile);
