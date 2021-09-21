@@ -7,87 +7,53 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
-/*
- * A simple header-only logging library
- */
+#define SEPLINE0     "################################################################"
+#define SEPLINE1     "================================================================"
+#define SEPLINE     SEPLINE1
 
-#define LOG_SEP_CHAR     '#'
 #define LOG_DEF_FILENAME "chitralok.log"
 
-
-typedef enum {
-    DEBUG = 0,
-    INFO, 
-    WARNING,
-    ERROR,
-    FATAL
-} LogType;
-
-const char* logtype_map[] = {
-    [DEBUG] = "Debug",
-    [INFO] = "Info",
-    [WARNING]  = "Warning",
-    [ERROR] = "Error",
-    [FATAL] = "Fatal"
-};
+#define __FILENAME__ ( strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__ )
 
 
-FILE *_stream;
-
-//function sigs
-void _log_init_msg();
-
-
-void log_init(FILE *stream) {
-    if (NULL != stream) {
-        _stream = stream;
-        return;
-    }
-
-    //if NULL is provided, we use the default file
-    _stream = fopen(LOG_DEF_FILENAME, "a");
-
-    _log_init_msg();
-
-}
-
-void log_close() {
-    fclose(_stream);
-}
-
-//using functions instead of macros
-void _log_init_msg()
-{
-    time_t ltime;
-    ltime = time(NULL);
-    char *timestamp = asctime(localtime(&ltime)); //returned string is statically allocated
-    timestamp[strlen(timestamp)-1] = 0;
+#define LL_INFO     "INFO"
+#define LL_DEBUG    "DEBUG"
+#define LL_ERROR    "ERROR"
 
 
-    //print a separating line
-    char seps[65];
-    memset(seps, LOG_SEP_CHAR, 64);
-    seps[64] = 0;
-    
-    fprintf(_stream, "%s\n", seps); 
-    fprintf(_stream, "%s\t%s\t%s\n", timestamp, logtype_map[INFO], "Started new log");
-}
 
-void _log(LogType mode, const char *msg)
-{
-    time_t ltime;
-    ltime = time(NULL);
-    char *timestamp = asctime(localtime(&ltime)); 
-    timestamp[strlen(timestamp)-1] = 0;
+#define LOG_INIT_STDOUT()     \
+    _log_stream = stdout;  \
+    LOG_INIT()
 
-    fprintf(_stream, "%s\t%s\t%s\n", timestamp, logtype_map[mode], msg);
-}
+#define LOG_INIT_FILE()      \
+    _log_stream = fopen(LOG_DEF_FILENAME, "a"); \
+    LOG_INIT()
 
-void logging_info(const char *msg)
-{
-    _log(INFO, msg);
-}
+#define LOG_INIT_FILENAME(fname) \
+    __log__stream = fopen(fname, "a"); \
+    LOG_INIT()
+
+#define LOG_CLOSE()     fclose(_log_stream); 
+
+#define LOG(level, ...) \
+    fprintf(_log_stream, "%s|%s (%s:%d:%s): ", __DATE__, __TIME__, __FILENAME__, __LINE__, __func__); \
+    fprintf(_log_stream, __VA_ARGS__); \
+    fputc('\n', _log_stream);
+
+#define LOG_INIT() \
+    fprintf(_log_stream, "%s\n", SEPLINE); \
+    LOG_INFO("Log started");
+
+
+#define LOG_INFO(...) LOG(LL_INFO, __VA_ARGS__)
+#define LOG_ERROR(...) LOG(LL_ERROR, __VA_ARGS__)
+
+
+//initialize this in main.c
+extern FILE *_log_stream;
+
+//only for __GNUCC_ char _log_linebuf[64] = {[0 ... 64] = SEP_CHAR};
 
 #endif //LOGGING_H

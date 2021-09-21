@@ -17,7 +17,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #message(STATUS "sources are ${SOURCES}")
 
-add_executable(chitralok main.c)
+add_executable(chitralok main.c jfif.c)
 #target_link_libraries(vilasita SDL2::SDL2 ${GLEW_LIBRARIES} ${OPENGL_LIBRARY}  ${ASSIMP_LIBRARIES})
 target_link_libraries(chitralok SDL2::SDL2)
 

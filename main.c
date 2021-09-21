@@ -13,6 +13,7 @@
 
 #include "utils.h"
 #include "logging.h"
+#include "jfif.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -20,34 +21,17 @@ SDL_Window *gWindow = NULL;
 SDL_Surface *gSurf = NULL;
 SDL_Renderer *gRenderer = NULL;
 
+FILE *_log_stream;
+
+void exit_cleanup() {
+    LOG_CLOSE()
+}
 
 void process_jpeg(FILE *jpegFile)
 {
-    fseek(jpegFile, 0L, SEEK_END);
-    long size = ftell(jpegFile);
-    fseek(jpegFile, 0L, SEEK_SET);
-    
-    uint8_t *bytes = (uint8_t *) malloc(sizeof(uint8_t) * size);
-    if (bytes == NULL) {
-        
-    }
-    
-    fread(bytes, size, sizeof(uint8_t), jpegFile);
-
-
-    if (bytes[0] == 0xFF && bytes[1] == 0xD8) {
-        printf("JPEG!\n");
-    }  else {
-        THROW_ERR("Error:%s(%s, %d): not a JPEG\n");
+    if(process_jfif(jpegFile) == -1) {
         return;
     }
-
-
-    //printf("Val %x %x\n", (unsigned char) try[0], (unsigned char) try[1]);
-    
-
-    free(bytes);
-
 }
 
 int init()
@@ -75,11 +59,11 @@ int main(int argc, char *argv[])
     char *file = NULL;
     char *path = NULL;
 
+    LOG_INIT_FILE()
 
-    log_init(NULL);
 
     if (argc < 2) {
-        logging_info("No path provided; Using lenna");
+        LOG_INFO("No path provided; Using lenna")
         //Try to use lenna
 #if defined(__unix__)
         char *home = getenv("HOME");
@@ -96,7 +80,7 @@ int main(int argc, char *argv[])
 #endif
 
     } else {
-        logging_info("argv[1] used for path");
+        LOG_INFO("argv[1] used for path")
         path = argv[1];
     }
     
@@ -109,9 +93,11 @@ int main(int argc, char *argv[])
     }
     if (!jpegFile) {
         fprintf(stderr, "Error: Could not open file(%s)\n", strerror(errno));
+        exit_cleanup();
         return -1;
     }
-
+    
+    LOG_INFO("About to process the jpeg")
     process_jpeg(jpegFile);
 
     fclose(jpegFile);
