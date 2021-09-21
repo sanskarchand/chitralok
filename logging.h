@@ -8,14 +8,16 @@
 #include <stdio.h>
 #include <string.h>
 
-#define SEPLINE0     "################################################################"
-#define SEPLINE1     "================================================================"
-#define SEPLINE     SEPLINE1
+#define SEPLINE0     "################"         //16 chars
+#define SEPLINE1     "================"
+
+// C will merge adjacent literals
+#define SEPLINE     (SEPLINE1 SEPLINE1 SEPLINE1 SEPLINE1)    
 
 #define LOG_DEF_FILENAME "chitralok.log"
 
-#define __FILENAME__ ( strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__ )
-
+#define __FILENAME__ ( strrchr(__FILE__, '/') ? \
+        strrchr(__FILE__, '/') + 1 : __FILE__ )
 
 #define LL_INFO     "INFO"
 #define LL_DEBUG    "DEBUG"
@@ -38,7 +40,8 @@
 #define LOG_CLOSE()     fclose(_log_stream); 
 
 #define LOG(level, ...) \
-    fprintf(_log_stream, "[%s] %s|%s (%s:%d:%s): ", level, __DATE__, __TIME__, __FILENAME__, __LINE__, __func__); \
+    fprintf(_log_stream, "[%s] %s|%s (%s:%d:%s): ", level, __DATE__, \
+            __TIME__, __FILENAME__, __LINE__, __func__); \
     fprintf(_log_stream, __VA_ARGS__); \
     fputc('\n', _log_stream);
 
