@@ -38,7 +38,7 @@
 #define LOG_CLOSE()     fclose(_log_stream); 
 
 #define LOG(level, ...) \
-    fprintf(_log_stream, "%s|%s (%s:%d:%s): ", __DATE__, __TIME__, __FILENAME__, __LINE__, __func__); \
+    fprintf(_log_stream, "[%s] %s|%s (%s:%d:%s): ", level, __DATE__, __TIME__, __FILENAME__, __LINE__, __func__); \
     fprintf(_log_stream, __VA_ARGS__); \
     fputc('\n', _log_stream);
 
