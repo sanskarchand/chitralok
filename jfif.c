@@ -108,27 +108,25 @@ int process_jfif(FILE *jpegFile, void (*fDebug) (uint8_t *, int) )
 
     // ignore other segments e.g. exif APP1 or photoshop's APP13
     // go straight to SOS
-    peek_hex(cur);
     LOG_INFO("Skipping to SOS segment");
-    size_t offset = cur - bytes + 1;
+    size_t offset = cur - bytes;
 
-    while (*cur) {
-        
+    while (offset < size) {
         if (*cur == 0xFF) {
             if (*(cur+1) == 0xDA) {
                 LOG_INFO("SOS located at offset %zu", offset);
                 break; 
             } else if (*(cur+1) != 0x00 && *(cur+1) != 0xFF) {
-                LOG_INFO("Skipping segment with header %2X%2X at offset %zu", *cur,
+                LOG_INFO("Skipping segment with header %02X%02X at offset %zu", *cur,
                             *(cur+1), offset);
             }
         }
-        cur += 2;
-        offset += 2;
+
+        cur++;
+        offset++;
     }
 
     peek_hex(cur);
-
 
     free(bytes);
 
