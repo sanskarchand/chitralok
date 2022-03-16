@@ -25,5 +25,17 @@ ___
 We'll focus on JPEG/JFIF. This part does not need much explanation, as it is simple to understand. One can find a handy reference very easily. As of now, it suffices to say that the beginning of the file
 must contain the byte sequence `FF D8`.
 
-#### 1.2: The Decodnig Process
-We shall take a look at how a raw image ends up becoming 
+#### 1.2: The Decoding Process
+
+Although I promised above not to focus on the encoding process, it is instructive to consider its steps in order.
+
+1. Block preparation
+2. Application of Discrete Cosine Transformation to each block
+3. Quantization
+4. Differential reduction
+5. Linearization and run-length encoding
+
+Therefore, to decode a JPEG image into a series of
+raw pixels, we must follow these teps:
+
+1. 

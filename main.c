@@ -21,15 +21,27 @@ SDL_Window *gWindow = NULL;
 SDL_Surface *gSurf = NULL;
 SDL_Renderer *gRenderer = NULL;
 
+uint32_t *debugPixels;
+
 FILE *_log_stream;
 
 void exit_cleanup() {
     LOG_CLOSE()
 }
 
+//RGB format
+void set_pixel_data( uint8_t *data, int num_pixels)
+{
+    LOG_INFO("set_pixel_data: num_pixels = %d\n", num_pixels)
+
+    for (int i = 0; i < num_pixels; i++)  {
+        *debugPixels++ = *(data+i) << 2 | *(data+i+2) << 1 | *(data+i+3);
+    }
+}
+
 void process_jpeg(FILE *jpegFile)
 {
-    if(process_jfif(jpegFile) == -1) {
+    if(process_jfif(jpegFile, set_pixel_data) == -1) {
         return;
     }
 }
@@ -55,6 +67,22 @@ int init()
 
 int main(int argc, char *argv[])
 {
+    SDL_Event event;
+    
+    //init SDL
+    if (init() != 0) {
+        return -1;
+    }
+    // temp img dims
+    int im_w = 640;
+    int im_h = 480;
+
+    SDL_Texture* framebuffer = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, im_w, im_h);
+
+    //using 32-bits for alignment, even when only 24 are necessary
+    debugPixels = (uint32_t*) malloc(im_w * im_h * sizeof(uint32_t));
+
+
 
     char *file = NULL;
     char *path = NULL;
@@ -101,38 +129,16 @@ int main(int argc, char *argv[])
     process_jpeg(jpegFile);
 
     fclose(jpegFile);
-
-
-
-    SDL_Event event;
-
-    if (init() != 0) {
-        return -1;
-    }
-    
-    /*TODO: eventually replace the below with the actual contents of the decoded image.
-     * 'Tis but a test as of yet.
-     */
-
-    int im_w = 640;
-    int im_h = 480;
-
-    SDL_Texture* framebuffer = SDL_CreateTexture(gRenderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, im_w, im_h);
-    uint32_t* pixels = (uint32_t*) malloc(im_w * im_h * sizeof(uint32_t));
-
-    for (int i = 0; i < im_w * im_h/2; i++) {
-        *(pixels + i) = (uint32_t)(255 << 4 | 255 << 3);
-    }
-    
-
-    //update texture
-    SDL_UpdateTexture(framebuffer , NULL, pixels, im_w * sizeof (uint32_t));
-    
+        
     while (1) {
         SDL_PollEvent(&event);                  //TODO: remove this, just use SDL_PumpEvents() (below)
         if (event.type == SDL_QUIT) {
             break;
         }
+
+        //update texture
+        SDL_UpdateTexture(framebuffer , NULL, debugPixels, im_w * sizeof (uint32_t));
+
 
         SDL_RenderClear(gRenderer);
         SDL_RenderCopy(gRenderer, framebuffer , NULL, NULL);
