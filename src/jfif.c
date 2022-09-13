@@ -126,7 +126,37 @@ int process_jfif(FILE *jpegFile, void (*fDebug) (uint8_t *, int) )
         offset++;
     }
 
-    peek_hex(cur);
+    //get offset of the last EOI marker (FF D9)
+
+    //NOTE: for some reason, even though my test image has no thumbnail,
+    //I get two occurences of FF D9.
+    //There is the option of directly reading to EOF, but some jpeg files
+    //may have a tailer
+    size_t offset_end;
+    size_t cnt = offset;
+    while (cnt <  size) {
+        if (*cur == 0XFF && *(cur+1) == 0xD9) {
+            offset_end = cur - bytes;
+        }
+        cur++; 
+        cnt++;
+    }
+
+
+    LOG_INFO("Final EOI offset is %zu", offset_end);
+    
+    //copy img data
+    size_t total_size = offset_end - offset + 1 - 4; //+1 for count, -4 to exclude markers
+    parsed.pj_data = (uint8_t*) malloc(total_size);
+
+    memcpy(parsed.pj_data, bytes + offset, total_size);
+    
+    LOG_INFO("Copied total %zu bytes of imgdata", total_size);
+
+    peek_hex(bytes + offset + total_size - 20);
+
+    printf("%02x %02x %02x %02x\n", parsed.pj_data[0], parsed.pj_data[1], parsed.pj_data[total_size-2],
+            parsed.pj_data[total_size-1]);
 
     free(bytes);
 

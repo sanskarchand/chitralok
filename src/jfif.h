@@ -17,6 +17,8 @@ struct parsed_jfif {
 
     uint8_t pj_thumb_size[2];   //embedded thumbnail dimensions
     uint8_t *pj_thumb_data;     //NOTE: user responsible for free();
+
+    uint8_t *pj_data;           //actual image data
 };
 
 int process_jfif(FILE *jpegFile, void (*fDebug) (uint8_t *, int) );
