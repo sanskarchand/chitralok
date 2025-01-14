@@ -39,12 +39,7 @@ void set_pixel_data( uint8_t *data, int num_pixels)
     }
 }
 
-void process_jpeg(FILE *jpegFile)
-{
-    if(process_jfif(jpegFile, set_pixel_data) == -1) {
-        return;
-    }
-}
+    
 
 int init()
 {
@@ -68,6 +63,7 @@ int init()
 int main(int argc, char *argv[])
 {
     SDL_Event event;
+    struct parsed_jfif parsed;
     
     //init SDL
     if (init() != 0) {
@@ -85,9 +81,10 @@ int main(int argc, char *argv[])
 
 
     char *file = NULL;
+    FILE *jpegFile; 
     char *path = NULL;
 
-    LOG_INIT_FILE()
+    LOG_INIT_STDOUT()
 
 
     if (argc < 2) {
@@ -98,6 +95,7 @@ int main(int argc, char *argv[])
         path = (char *) malloc(strlen(home) + sizeof("/Pictures/lenna.jpg") + 1);
         if (path) {
             sprintf(path, "%s%s", home, "/Pictures/lenna.jpg");
+        } else {
         }
 #elif defined(__WIN32__)
         char *home = getenv("USERPROFILE");
@@ -105,20 +103,18 @@ int main(int argc, char *argv[])
         if (path) {
             sprintf(path, "%s%s", home, "\\Pictures\\lenna.jpg");
         }
+
+        jpegFile = fopen(path, "rb");
+        free(path);
 #endif
 
     } else {
         LOG_INFO("argv[1] used for path")
-        path = argv[1];
+        jpegFile = fopen(argv[1], "rb");
     }
     
-    FILE *jpegFile = fopen(path, "rb");
 
 
-    // don't forget to free path
-    if (path) { 
-        free(path);
-    }
     if (!jpegFile) {
         fprintf(stderr, "Error: Could not open file(%s)\n", strerror(errno));
         exit_cleanup();
@@ -126,10 +122,18 @@ int main(int argc, char *argv[])
     }
     
     LOG_INFO("About to process the jpeg")
-    process_jpeg(jpegFile);
+
+    // Step 1: Parse JFIF and store data
+    if(process_jfif(jpegFile, &parsed, set_pixel_data) == -1) {
+        return 1;
+    }
+
+    // Step 2: Huffman decoding
+
 
     fclose(jpegFile);
-        
+    
+    /*
     while (1) {
         SDL_PollEvent(&event);                  //TODO: remove this, just use SDL_PumpEvents() (below)
         if (event.type == SDL_QUIT) {
@@ -147,6 +151,7 @@ int main(int argc, char *argv[])
 
     SDL_DestroyWindow(gWindow);
     SDL_Quit();
+    */
 
     return 0;
 

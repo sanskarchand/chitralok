@@ -1,2 +1,6 @@
+res/
 build/
 *.log
+tags
+nohup.out
+compile_commands.json

@@ -12,6 +12,7 @@
 #define SEPLINE1     "================"
 #define SEPLINE_USED SEPLINE1
 
+
 // C will merge adjacent literals
 #define SEPLINE     (SEPLINE_USED SEPLINE_USED SEPLINE_USED SEPLINE_USED SEPLINE_USED)    
 

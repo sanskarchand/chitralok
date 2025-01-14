@@ -9,7 +9,7 @@ It is intended to serve as a reference for any programmers writing their own jpe
 
 **I do not comment on the encoding process here**, for it is has already been elsewhere explained  by people much smarter than me.
 
-The idea is that the reader will study the encoding process, learn to parse the file, and only then will he look to this guide, as a kind of quick guide on constructing a decoder. 
+The idea is that the reader will study the encoding process, learn to parse the file, and only then will he look to this guide, as a kind of quick reference for decoder construction. 
 ___
 ### Section 0: Using the Code as a Reference
 First, I  will mark down the aforementioned steps during which this program shall populate the log file. Important steps are emphasized in boldface; the others may be skipped.
@@ -34,6 +34,7 @@ Although I promised above not to focus on the encoding process, it is instructiv
 3. Quantization
 4. Differential reduction
 5. Linearization and run-length encoding
+6. Huffman Coding
 
 Therefore, to decode a JPEG image into a series of
 raw pixels, we must follow these teps:

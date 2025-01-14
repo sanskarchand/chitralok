@@ -2,6 +2,7 @@
 #define JFIF_H
 
 #include <stdio.h>
+#include <stdint.h>
 
 //pixel density format
 enum PJPdf {
@@ -19,8 +20,10 @@ struct parsed_jfif {
     uint8_t *pj_thumb_data;     //NOTE: user responsible for free();
 
     uint8_t *pj_data;           //actual image data
+    uint8_t pj_img_size;
 };
 
-int process_jfif(FILE *jpegFile, void (*fDebug) (uint8_t *, int) );
+int process_jfif(FILE *jpegFile, struct parsed_jfif *parsed,
+        void (*fDebug) (uint8_t *, int) );
 
 #endif //JFIF_H

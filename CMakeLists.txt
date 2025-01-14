@@ -1,8 +1,9 @@
-project(chitralok)
 cmake_minimum_required(VERSION 3.10)
+project(chitralok)
 
 set(CMAKE_BUILD_TYPE Debug)
-
+#set( CMAKE_EXPORT_COMPILE_COMMANDS ON ) # for YCM
+add_definitions(-DCMAKE_EXPORT_COMPILE_COMMANDS=ON)  # for YCM
 #find_package(GLEW REQUIRED)
 #find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
